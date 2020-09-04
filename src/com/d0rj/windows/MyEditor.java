@@ -21,11 +21,14 @@ public class MyEditor extends JFrame implements KeyListener {
     private static final int DEFAULT_FONT_SIZE = 14;
     private static final int DEFAULT_ICON_SIZE = 50;
     private static final int DEFAULT_TIMEOUT = 100;
+    private static final int DEER_WALK_MARK = 1;
+    private static final int DEER_RUN_MARK = 4;
 
     private int types = 0;
-    private boolean isRunningDeer = false;
+    private int ticks = 0;
 
     private AnimationFrames walkAnimation;
+    private AnimationFrames runAnimation;
 
 
     private URL loadResource(String path) {
@@ -55,6 +58,21 @@ public class MyEditor extends JFrame implements KeyListener {
                         rescaleIcon(new ImageIcon(loadResource("images/deer_walk_12.png"))),
                 }
         );
+        runAnimation = new AnimationFrames(
+                new ImageIcon[]{
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_1.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_2.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_3.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_4.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_5.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_6.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_7.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_8.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_9.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_10.png"))),
+                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_1.png"))),
+                }
+        );
     }
 
     public MyEditor() {
@@ -67,8 +85,16 @@ public class MyEditor extends JFrame implements KeyListener {
         var typesCounter = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                imageLabel.setIcon(walkAnimation.getNextFrame());
-                types = 0;
+                if (types >= DEER_RUN_MARK) {
+                    imageLabel.setIcon(runAnimation.getNextFrame());
+                }
+                else if (types >= DEER_WALK_MARK) {
+                    imageLabel.setIcon(walkAnimation.getNextFrame());
+                }
+
+                if (ticks % (1000 / DEFAULT_TIMEOUT) == 0)
+                    types = 0;
+                ++ticks;
             }
         };
         var timer = new Timer(DEFAULT_TIMEOUT, typesCounter);
