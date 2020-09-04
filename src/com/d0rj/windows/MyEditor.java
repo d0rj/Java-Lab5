@@ -1,6 +1,5 @@
 package com.d0rj.windows;
 
-import com.d0rj.AnimationFrames;
 import com.d0rj.DeerState;
 
 import java.awt.*;
@@ -8,14 +7,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.net.URL;
 import javax.swing.*;
 import javax.swing.text.*;
 
 
 public class MyEditor extends JFrame implements KeyListener {
 
-    private DeerWidget deerWidget;
+    private final DeerWidget deerWidget;
 
     private static final String MAIN_TITLE = "W&R";
     private static final String DEFAULT_FONT_FAMILY = "SansSerif";
@@ -27,15 +25,6 @@ public class MyEditor extends JFrame implements KeyListener {
 
     private int types = 0;
     private int ticks = 0;
-
-    private AnimationFrames walkAnimation;
-    private AnimationFrames runAnimation;
-
-
-    private URL loadResource(String path) {
-        return this.getClass().getResource("/resources/" + path);
-    }
-
 
 
     public MyEditor() {
@@ -66,9 +55,10 @@ public class MyEditor extends JFrame implements KeyListener {
         timer.start();
     }
 
+
     public void run() {
         var editor = new JTextPane();
-        JScrollPane editorScrollPane = new JScrollPane(editor);
+        var editorScrollPane = new JScrollPane(editor);
 
         editor.setDocument(new DefaultStyledDocument());
         editor.addKeyListener(this);
@@ -78,6 +68,7 @@ public class MyEditor extends JFrame implements KeyListener {
 
         add(editorScrollPane, BorderLayout.CENTER);
         add(toolBar, BorderLayout.PAGE_START);
+
         setSize(900, 500);
         setLocation(150, 80);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -86,15 +77,18 @@ public class MyEditor extends JFrame implements KeyListener {
         editor.requestFocusInWindow();
     }
 
+
     @Override
     public void keyTyped(KeyEvent e) {
         ++types;
     }
 
+
     @Override
     public void keyPressed(KeyEvent e) {
 
     }
+
 
     @Override
     public void keyReleased(KeyEvent e) {
