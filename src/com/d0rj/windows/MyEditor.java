@@ -1,6 +1,7 @@
 package com.d0rj.windows;
 
 import com.d0rj.DeerState;
+import com.d0rj.widgets.DeerWidget;
 
 import java.awt.event.*;
 import java.util.List;
@@ -26,7 +27,7 @@ public class MyEditor extends JFrame implements KeyListener {
     private static final int DEFAULT_TIMEOUT = 100;
     private static final int DEER_WALK_MARK = 1;
     private static final int DEER_RUN_MARK = 4;
-    private static final List<String> FONT_LIST = Arrays.asList("Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana");
+    private static final List<String> FONT_LIST = Arrays.asList("Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "MS Sans Serif", "Tahoma", "Times New Roman", "Verdana");
     private static final String [] FONT_SIZES  = {"Font Size", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30", "40", "48", "56", "64", "72", "80", "88", "96"};
 
     private int types = 0;

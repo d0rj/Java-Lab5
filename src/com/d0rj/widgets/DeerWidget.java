@@ -1,4 +1,4 @@
-package com.d0rj.windows;
+package com.d0rj.widgets;
 
 import com.d0rj.AnimationFrames;
 import com.d0rj.DeerState;
