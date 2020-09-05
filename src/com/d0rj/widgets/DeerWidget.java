@@ -57,7 +57,6 @@ public class DeerWidget extends JLabel {
                         rescaleIcon(new ImageIcon(loadResource("images/deer_run_8.png"))),
                         rescaleIcon(new ImageIcon(loadResource("images/deer_run_9.png"))),
                         rescaleIcon(new ImageIcon(loadResource("images/deer_run_10.png"))),
-                        rescaleIcon(new ImageIcon(loadResource("images/deer_run_1.png"))),
                 }
         );
     }

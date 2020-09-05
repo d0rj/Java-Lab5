@@ -26,12 +26,13 @@ public class MyEditor extends JFrame implements KeyListener {
     private static final int DEFAULT_ICON_SIZE = 50;
     private static final int DEFAULT_BUTTON_SIZE = DEFAULT_ICON_SIZE / 2;
     private static final int DEFAULT_TIMEOUT = 100;
-    private static final int DEER_WALK_MARK = 1;
-    private static final int DEER_RUN_MARK = 4;
+    private static final int DEER_WALK_MARK = 2;
+    private static final int DEER_RUN_MARK = 10;
     private static final List<String> FONT_LIST = Arrays.asList("Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "MS Sans Serif", "Tahoma", "Times New Roman", "Verdana");
     private static final String [] FONT_SIZES  = {"Font Size", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30", "40", "48", "56", "64", "72", "80", "88", "96"};
 
     private int types = 0;
+    private int lastTickTypes = 0;
     private int ticks = 0;
 
 
@@ -78,17 +79,20 @@ public class MyEditor extends JFrame implements KeyListener {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (types >= DEER_RUN_MARK)
+                if (types + lastTickTypes >= DEER_RUN_MARK)
                     deerWidget.setState(DeerState.Run);
-                else if (types >= DEER_WALK_MARK)
+                else if (types + lastTickTypes >= DEER_WALK_MARK)
                     deerWidget.setState(DeerState.Walk);
                 else
                     deerWidget.setState(DeerState.Stand);
 
                 deerWidget.nextFrame();
 
-                if (ticks % (1000 / DEFAULT_TIMEOUT) == 0)
+                if (ticks % (1000 / DEFAULT_TIMEOUT) == 0) {
+                    lastTickTypes = types;
                     types = 0;
+                }
+
                 ++ticks;
             }
         };
@@ -109,19 +113,19 @@ public class MyEditor extends JFrame implements KeyListener {
 
         var colorButton = new JButton();
         colorButton.addActionListener(new ColorActionListener());
-        colorButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_paint.png")), DEFAULT_BUTTON_SIZE));
+        colorButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_paint.png")), DEFAULT_ICON_SIZE / 3));
 
         var boldButton = new JButton(new StyledEditorKit.BoldAction());
         boldButton.setHideActionText(true);
-        boldButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_bold.png")), DEFAULT_BUTTON_SIZE));
+        boldButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_bold.png")), DEFAULT_ICON_SIZE / 3));
         boldButton.addActionListener(editButtonActionListener);
         var italicButton = new JButton(new StyledEditorKit.ItalicAction());
         italicButton.setHideActionText(true);
-        italicButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_italic.png")), DEFAULT_BUTTON_SIZE));
+        italicButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_italic.png")), DEFAULT_ICON_SIZE / 3));
         italicButton.addActionListener(editButtonActionListener);
         var underlineButton = new JButton(new StyledEditorKit.UnderlineAction());
         underlineButton.setHideActionText(true);
-        underlineButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_underline.png")), DEFAULT_BUTTON_SIZE));
+        underlineButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_underline.png")), DEFAULT_ICON_SIZE / 3));
         underlineButton.addActionListener(editButtonActionListener);
 
         Vector<String> editorFonts = getEditorFonts();
@@ -160,6 +164,7 @@ public class MyEditor extends JFrame implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
+        ++lastTickTypes;
         ++types;
     }
 
