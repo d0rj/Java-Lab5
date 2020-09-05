@@ -2,50 +2,39 @@ package com.d0rj.windows;
 
 import com.d0rj.DeerState;
 
+import java.awt.event.*;
 import java.util.List;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.Arrays;
 import java.util.Vector;
 import javax.swing.*;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
-import javax.swing.undo.UndoManager;
 
 
 public class MyEditor extends JFrame implements KeyListener {
 
     private JTextPane editor;
     private final DeerWidget deerWidget;
-    private UndoManager undoManager;
+    private JComboBox<String> fontFamilyComboBox;
+    private JComboBox<String> fontSizeComboBox;
 
     private static final String MAIN_TITLE = "W&R";
     private static final String DEFAULT_FONT_FAMILY = "SansSerif";
     private static final int DEFAULT_FONT_SIZE = 14;
     private static final int DEFAULT_ICON_SIZE = 50;
+    private static final int DEFAULT_BUTTON_SIZE = DEFAULT_ICON_SIZE / 2;
     private static final int DEFAULT_TIMEOUT = 100;
     private static final int DEER_WALK_MARK = 1;
     private static final int DEER_RUN_MARK = 4;
-    private static final List<String> FONT_LIST = Arrays.asList(new String [] {"Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana"});
-    private static final String [] FONT_SIZES  = {"Font Size", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30"};
+    private static final List<String> FONT_LIST = Arrays.asList("Arial", "Calibri", "Cambria", "Courier New", "Comic Sans MS", "Dialog", "Georgia", "Helevetica", "Lucida Sans", "Monospaced", "Tahoma", "Times New Roman", "Verdana");
+    private static final String [] FONT_SIZES  = {"Font Size", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30", "40", "48", "56", "64", "72", "80", "88", "96"};
 
     private int types = 0;
     private int ticks = 0;
 
 
     private StyledDocument getNewDocument() {
-        var document = new DefaultStyledDocument();
-        document.addUndoableEditListener(new UndoableEditListener() {
-            @Override
-            public void undoableEditHappened(UndoableEditEvent e) {
-
-            }
-        });
-        return document;
+        return new DefaultStyledDocument();
     }
 
 
@@ -98,35 +87,49 @@ public class MyEditor extends JFrame implements KeyListener {
         editor = new JTextPane();
         var editorScrollPane = new JScrollPane(editor);
 
-        undoManager = new UndoManager();
         var editButtonActionListener = new EditButtonActionListener();
 
         editor.setDocument(new DefaultStyledDocument());
         editor.addKeyListener(this);
         editor.setStyledDocument(getNewDocument());
 
-        JButton colorButton = new JButton("Set Color");
+        var colorButton = new JButton("Set Color");
         colorButton.addActionListener(new ColorActionListener());
 
-        JButton boldButton = new JButton(new StyledEditorKit.BoldAction());
+        var boldButton = new JButton(new StyledEditorKit.BoldAction());
         boldButton.setHideActionText(true);
         boldButton.setText("Bold");
         boldButton.addActionListener(editButtonActionListener);
-        JButton italicButton = new JButton(new StyledEditorKit.ItalicAction());
+        var italicButton = new JButton(new StyledEditorKit.ItalicAction());
         italicButton.setHideActionText(true);
         italicButton.setText("Italic");
         italicButton.addActionListener(editButtonActionListener);
-        JButton underlineButton = new JButton(new StyledEditorKit.UnderlineAction());
+        var underlineButton = new JButton(new StyledEditorKit.UnderlineAction());
         underlineButton.setHideActionText(true);
         underlineButton.setText("Underline");
         underlineButton.addActionListener(editButtonActionListener);
 
+        Vector<String> editorFonts = getEditorFonts();
+        editorFonts.add(0, "Font Family");
+        fontFamilyComboBox = new JComboBox<>(editorFonts);
+        fontFamilyComboBox.setEditable(false);
+        fontFamilyComboBox.addItemListener(new FontFamilyItemListener());
+        fontFamilyComboBox.setMaximumSize(new Dimension(DEFAULT_ICON_SIZE * 2, DEFAULT_BUTTON_SIZE));
+
+        fontSizeComboBox = new JComboBox<>(FONT_SIZES);
+        fontSizeComboBox.setEditable(false);
+        fontSizeComboBox.addItemListener(new FontSizeItemListener());
+        fontSizeComboBox.setMaximumSize(new Dimension(DEFAULT_ICON_SIZE * 2, DEFAULT_BUTTON_SIZE));
+
         var toolBar = new JToolBar("Tools");
+        toolBar.setSize(1000, DEFAULT_ICON_SIZE);
         toolBar.add(deerWidget);
         toolBar.add(colorButton);
         toolBar.add(boldButton);
         toolBar.add(italicButton);
         toolBar.add(underlineButton);
+        toolBar.add(fontFamilyComboBox);
+        toolBar.add(fontSizeComboBox);
 
         add(editorScrollPane, BorderLayout.CENTER);
         add(toolBar, BorderLayout.PAGE_START);
@@ -170,7 +173,6 @@ public class MyEditor extends JFrame implements KeyListener {
     private class ColorActionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-
             Color newColor = JColorChooser.showDialog(MyEditor.this, "Choose a color", Color.BLACK);
             if (newColor == null) {
                 editor.requestFocusInWindow();
@@ -180,6 +182,45 @@ public class MyEditor extends JFrame implements KeyListener {
             SimpleAttributeSet attr = new SimpleAttributeSet();
             StyleConstants.setForeground(attr, newColor);
             editor.setCharacterAttributes(attr, false);
+            editor.requestFocusInWindow();
+        }
+    }
+
+
+    private class FontFamilyItemListener implements ItemListener {
+
+        public void itemStateChanged(ItemEvent e) {
+            if ((e.getStateChange() != ItemEvent.SELECTED) || (fontFamilyComboBox.getSelectedIndex() == 0)) {
+                return;
+            }
+
+            String fontFamily = (String)e.getItem();
+            fontFamilyComboBox.setAction(new StyledEditorKit.FontFamilyAction(fontFamily, fontFamily));
+            fontFamilyComboBox.setSelectedIndex(0);
+            editor.requestFocusInWindow();
+        }
+    }
+
+
+    private class FontSizeItemListener implements ItemListener {
+
+        public void itemStateChanged(ItemEvent e) {
+            if ((e.getStateChange() != ItemEvent.SELECTED) || (fontSizeComboBox.getSelectedIndex() == 0)) {
+                return;
+            }
+
+            String fontSizeStr = (String)e.getItem();
+
+            int newFontSize;
+            try {
+                newFontSize = Integer.parseInt(fontSizeStr);
+            }
+            catch (NumberFormatException ex) {
+                return;
+            }
+
+            fontSizeComboBox.setAction(new StyledEditorKit.FontSizeAction(fontSizeStr, newFontSize));
+            fontSizeComboBox.setSelectedIndex(0);
             editor.requestFocusInWindow();
         }
     }
