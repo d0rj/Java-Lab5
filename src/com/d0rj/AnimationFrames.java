@@ -4,6 +4,7 @@ import javax.swing.*;
 
 
 public class AnimationFrames {
+
     private final ImageIcon[] frames;
     private int currentFrame = 0;
 

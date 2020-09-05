@@ -4,6 +4,7 @@ import com.d0rj.DeerState;
 import com.d0rj.widgets.DeerWidget;
 
 import java.awt.event.*;
+import java.net.URL;
 import java.util.List;
 import java.awt.*;
 import java.util.Arrays;
@@ -55,6 +56,18 @@ public class MyEditor extends JFrame implements KeyListener {
     }
 
 
+    private URL loadResource(String path) {
+        return this.getClass().getResource("/resources/" + path);
+    }
+
+
+    private ImageIcon rescaleIcon(ImageIcon original, int size) {
+        return new ImageIcon(
+                original.getImage().getScaledInstance(size, size, Image.SCALE_DEFAULT)
+        );
+    }
+
+
     public MyEditor() {
         super(MAIN_TITLE);
 
@@ -94,20 +107,21 @@ public class MyEditor extends JFrame implements KeyListener {
         editor.addKeyListener(this);
         editor.setStyledDocument(getNewDocument());
 
-        var colorButton = new JButton("Set Color");
+        var colorButton = new JButton();
         colorButton.addActionListener(new ColorActionListener());
+        colorButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_paint.png")), DEFAULT_BUTTON_SIZE));
 
         var boldButton = new JButton(new StyledEditorKit.BoldAction());
         boldButton.setHideActionText(true);
-        boldButton.setText("Bold");
+        boldButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_bold.png")), DEFAULT_BUTTON_SIZE));
         boldButton.addActionListener(editButtonActionListener);
         var italicButton = new JButton(new StyledEditorKit.ItalicAction());
         italicButton.setHideActionText(true);
-        italicButton.setText("Italic");
+        italicButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_italic.png")), DEFAULT_BUTTON_SIZE));
         italicButton.addActionListener(editButtonActionListener);
         var underlineButton = new JButton(new StyledEditorKit.UnderlineAction());
         underlineButton.setHideActionText(true);
-        underlineButton.setText("Underline");
+        underlineButton.setIcon(rescaleIcon(new ImageIcon(loadResource("images/icon_underline.png")), DEFAULT_BUTTON_SIZE));
         underlineButton.addActionListener(editButtonActionListener);
 
         Vector<String> editorFonts = getEditorFonts();
