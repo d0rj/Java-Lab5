@@ -149,6 +149,7 @@ public class MyEditor extends JFrame implements KeyListener {
         toolBar.add(underlineButton);
         toolBar.add(fontFamilyComboBox);
         toolBar.add(fontSizeComboBox);
+        toolBar.setFloatable(false);
 
         add(editorScrollPane, BorderLayout.CENTER);
         add(toolBar, BorderLayout.PAGE_START);
