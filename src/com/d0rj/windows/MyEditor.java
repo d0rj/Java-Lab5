@@ -4,6 +4,7 @@ import com.d0rj.DeerState;
 import com.d0rj.widgets.DeerWidget;
 
 import java.awt.event.*;
+import java.io.*;
 import java.net.URL;
 import java.util.List;
 import java.awt.*;
@@ -19,6 +20,7 @@ public class MyEditor extends JFrame implements KeyListener {
     private final DeerWidget deerWidget;
     private JComboBox<String> fontFamilyComboBox;
     private JComboBox<String> fontSizeComboBox;
+    private File file;
 
     private static final String MAIN_TITLE = "W&R";
     private static final String DEFAULT_FONT_FAMILY = "SansSerif";
@@ -38,6 +40,11 @@ public class MyEditor extends JFrame implements KeyListener {
 
     private StyledDocument getNewDocument() {
         return new DefaultStyledDocument();
+    }
+
+
+    private StyledDocument getEditorDocument() {
+        return (DefaultStyledDocument) editor.getDocument();
     }
 
 
@@ -151,6 +158,31 @@ public class MyEditor extends JFrame implements KeyListener {
         toolBar.add(fontSizeComboBox);
         toolBar.setFloatable(false);
 
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+
+        JMenuItem newItem	= new JMenuItem("New");
+        newItem.setMnemonic(KeyEvent.VK_N);
+        newItem.addActionListener(new NewFileListener());
+        JMenuItem openItem	= new JMenuItem("Open...");
+        openItem.setMnemonic(KeyEvent.VK_O);
+        openItem.addActionListener(new OpenFileListener());
+        JMenuItem saveItem	= new JMenuItem("Save (...)");
+        saveItem.setMnemonic(KeyEvent.VK_S);
+        saveItem.addActionListener(new SaveFileListener());
+        JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem.setMnemonic(KeyEvent.VK_X);
+        exitItem.addActionListener(e -> System.exit(0));
+
+        fileMenu.add(newItem);
+        fileMenu.addSeparator();
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
+        fileMenu.add(exitItem);
+        menuBar.add(fileMenu);
+        setJMenuBar(menuBar);
+
         add(editorScrollPane, BorderLayout.CENTER);
         add(toolBar, BorderLayout.PAGE_START);
 
@@ -243,6 +275,112 @@ public class MyEditor extends JFrame implements KeyListener {
             fontSizeComboBox.setAction(new StyledEditorKit.FontSizeAction(fontSizeStr, newFontSize));
             fontSizeComboBox.setSelectedIndex(0);
             editor.requestFocusInWindow();
+        }
+    }
+
+
+    private void setFrameTitle(String title) {
+        setTitle(MAIN_TITLE + " " + title);
+    }
+
+
+    private class NewFileListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            initEditorAttributes();
+            editor.setDocument(getNewDocument());
+            file = null;
+            setFrameTitle("New file");
+        }
+
+        private void initEditorAttributes() {
+            AttributeSet attrs1 = editor.getCharacterAttributes();
+            var attrs2 = new SimpleAttributeSet(attrs1);
+            attrs2.removeAttributes(attrs1);
+            editor.setCharacterAttributes(attrs2, true);
+        }
+    }
+
+    private class OpenFileListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            file = chooseFile();
+
+            if (file == null) {
+                return;
+            }
+
+            readFile(file);
+            setFrameTitle(file.getName());
+        }
+
+        private File chooseFile() {
+            var chooser = new JFileChooser();
+
+            if (chooser.showOpenDialog(MyEditor.this) == JFileChooser.APPROVE_OPTION) {
+                return chooser.getSelectedFile();
+            }
+            else {
+                return null;
+            }
+        }
+
+        private void readFile(File file) {
+            StyledDocument doc;
+
+            try (InputStream fis = new FileInputStream(file);
+                 var ois = new ObjectInputStream(fis)) {
+
+                doc = (DefaultStyledDocument) ois.readObject();
+            }
+            catch (FileNotFoundException ex) {
+                JOptionPane.showMessageDialog(MyEditor.this, "Input file was not found!");
+                return;
+            }
+            catch (ClassNotFoundException | IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            editor.setDocument(doc);
+        }
+    }
+
+    private class SaveFileListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (file == null) {
+                file = chooseFile();
+
+                if (file == null)
+                    return;
+            }
+
+            var doc = (DefaultStyledDocument) getEditorDocument();
+
+            try (OutputStream fos = new FileOutputStream(file);
+                 var oos = new ObjectOutputStream(fos)) {
+
+                oos.writeObject(doc);
+            }
+            catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            setFrameTitle(file.getName());
+        }
+
+        private File chooseFile() {
+            var chooser = new JFileChooser();
+
+            if (chooser.showSaveDialog(MyEditor.this) == JFileChooser.APPROVE_OPTION) {
+                return chooser.getSelectedFile();
+            }
+            else {
+                return null;
+            }
         }
     }
 }
