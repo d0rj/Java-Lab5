@@ -3,6 +3,9 @@ package com.d0rj;
 import javax.swing.*;
 
 
+/**
+ * Набор кадров для воспроизведения циклической анимации
+ */
 public class AnimationFrames {
 
     private final ImageIcon[] frames;

@@ -8,6 +8,9 @@ import java.awt.*;
 import java.net.URL;
 
 
+/**
+ * Виджет анимированного оленя, использующий покадровую анимацию
+ */
 public class DeerWidget extends JLabel {
 
     private final int DEFAULT_SIZE;

@@ -223,6 +223,9 @@ public class MyEditor extends JFrame implements KeyListener {
     }
 
 
+    /**
+     * Смена цвета текста
+     */
     private class ColorActionListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
@@ -240,6 +243,9 @@ public class MyEditor extends JFrame implements KeyListener {
     }
 
 
+    /**
+     * Смена шрифта текста
+     */
     private class FontFamilyItemListener implements ItemListener {
 
         public void itemStateChanged(ItemEvent e) {
