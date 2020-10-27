@@ -1,6 +1,9 @@
 package com.d0rj.windows;
 
 import com.d0rj.DeerState;
+import com.d0rj.documents.CreateStyledTextDocument;
+import com.d0rj.documents.ICreateDocument;
+import com.d0rj.documents.StyledTextDocument;
 import com.d0rj.widgets.DeerWidget;
 
 import java.awt.event.*;
@@ -21,6 +24,7 @@ public class MyEditor extends JFrame implements KeyListener {
     private JComboBox<String> fontFamilyComboBox;
     private JComboBox<String> fontSizeComboBox;
     private File file;
+    private final ICreateDocument<StyledTextDocument> documentCreator = new CreateStyledTextDocument();
 
     private static final String MAIN_TITLE = "W&R";
     private static final String DEFAULT_FONT_FAMILY = "SansSerif";
@@ -36,11 +40,6 @@ public class MyEditor extends JFrame implements KeyListener {
     private int types = 0;
     private int lastTickTypes = 0;
     private int ticks = 0;
-
-
-    private StyledDocument getNewDocument() {
-        return new DefaultStyledDocument();
-    }
 
 
     private StyledDocument getEditorDocument() {
@@ -116,7 +115,7 @@ public class MyEditor extends JFrame implements KeyListener {
 
         editor.setDocument(new DefaultStyledDocument());
         editor.addKeyListener(this);
-        editor.setStyledDocument(getNewDocument());
+        editor.setStyledDocument(documentCreator.CreateNew().getDocument());
 
         var colorButton = new JButton();
         colorButton.addActionListener(new ColorActionListener());
@@ -295,7 +294,7 @@ public class MyEditor extends JFrame implements KeyListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             initEditorAttributes();
-            editor.setDocument(getNewDocument());
+            editor.setDocument(documentCreator.CreateNew().getDocument());
             file = null;
             setFrameTitle("New file");
         }
@@ -336,17 +335,11 @@ public class MyEditor extends JFrame implements KeyListener {
         private void readFile(File file) {
             StyledDocument doc;
 
-            try (InputStream fis = new FileInputStream(file);
-                 var ois = new ObjectInputStream(fis)) {
-
-                doc = (DefaultStyledDocument) ois.readObject();
-            }
-            catch (FileNotFoundException ex) {
+            try {
+                doc = documentCreator.CreateOpen(file).getDocument();
+            } catch (FileNotFoundException e) {
                 JOptionPane.showMessageDialog(MyEditor.this, "Input file was not found!");
                 return;
-            }
-            catch (ClassNotFoundException | IOException ex) {
-                throw new RuntimeException(ex);
             }
 
             editor.setDocument(doc);
